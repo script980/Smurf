@@ -1,148 +1,194 @@
--- Gui to Lua
--- Estilo: Azul, Preto e Branco com Fonte Moderna
--- Recursos: Auto Farm, Auto Pickup, Spam Tool para Ferro, Rubi, Ouro e mais
+-- 💙 Smurfs Hub 💙 para The Lost Land
+-- Feito com carinho pelos Smurfs
 
--- INSTANCIAS
-local ScreenGui = Instance.new("ScreenGui")
-local MainGUI = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local RockName = Instance.new("TextBox")
-local ItemName = Instance.new("TextBox")
-local AutoFarmRock = Instance.new("TextButton")
-local AutoPickupItem = Instance.new("TextButton")
-local AutoSpamTool = Instance.new("TextButton")
-local RockList = Instance.new("TextLabel")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
 
--- PROPRIEDADES GERAIS
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+-- GUI principal
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "SmurfsHub"
 
+local MainGUI = Instance.new("Frame", ScreenGui)
 MainGUI.Name = "MainGUI"
+MainGUI.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainGUI.Position = UDim2.new(0.05, 0, 0.3, 0)
+MainGUI.Size = UDim2.new(0, 260, 0, 350)
 MainGUI.Active = true
 MainGUI.Draggable = true
-MainGUI.Parent = ScreenGui
-MainGUI.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainGUI.Position = UDim2.new(0.15, 0, 0.25, 0)
-MainGUI.Size = UDim2.new(0, 300, 0, 300)
-MainGUI.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Instance.new("UICorner", MainGUI).CornerRadius = UDim.new(0, 10)
 
--- TÍTULO
-Title.Name = "Title"
-Title.Parent = MainGUI
-Title.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-Title.BorderSizePixel = 0
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Font = Enum.Font.Cartoon
-Title.Text = "💙 Smurf Hub 💙"
-Title.TextColor3 = Color3.fromRGB(0, 170, 255)
-Title.TextSize = 18
+local title = Instance.new("TextLabel", MainGUI)
+title.Text = "💙 Smurfs Hub 💙"
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.fromRGB(0, 170, 255)
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 18
 
--- ROCK NAME
-RockName.Name = "RockName"
-RockName.Parent = MainGUI
-RockName.PlaceholderText = "Digite o nome da rocha (Ex: Rubi)"
+-------------------- 🪨 Seção: FARM --------------------
+local RockName = Instance.new("TextBox", MainGUI)
+RockName.PlaceholderText = "Nome do minério (ex: Ferro)"
+RockName.Size = UDim2.new(0, 230, 0, 30)
+RockName.Position = UDim2.new(0, 15, 0, 40)
 RockName.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-RockName.Position = UDim2.new(0.05, 0, 0.15, 0)
-RockName.Size = UDim2.new(0.9, 0, 0, 30)
-RockName.Font = Enum.Font.Cartoon
 RockName.TextColor3 = Color3.fromRGB(255, 255, 255)
+RockName.Font = Enum.Font.GothamBold
 RockName.TextSize = 14
+Instance.new("UICorner", RockName).CornerRadius = UDim.new(0, 6)
 
--- ITEM NAME
-ItemName.Name = "ItemName"
-ItemName.Parent = MainGUI
-ItemName.PlaceholderText = "Nome do item para coletar"
-ItemName.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-ItemName.Position = UDim2.new(0.05, 0, 0.3, 0)
-ItemName.Size = UDim2.new(0.9, 0, 0, 30)
-ItemName.Font = Enum.Font.Cartoon
-ItemName.TextColor3 = Color3.fromRGB(255, 255, 255)
-ItemName.TextSize = 14
+local AutoFarmButton = Instance.new("TextButton", MainGUI)
+AutoFarmButton.Text = "🔁 Farm Minério"
+AutoFarmButton.Size = UDim2.new(0, 230, 0, 35)
+AutoFarmButton.Position = UDim2.new(0, 15, 0, 80)
+AutoFarmButton.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
+AutoFarmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AutoFarmButton.Font = Enum.Font.GothamBlack
+AutoFarmButton.TextSize = 15
+Instance.new("UICorner", AutoFarmButton).CornerRadius = UDim.new(0, 6)
 
--- AUTO FARM ROCK
-AutoFarmRock.Name = "AutoFarmRock"
-AutoFarmRock.Parent = MainGUI
-AutoFarmRock.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
-AutoFarmRock.Position = UDim2.new(0.05, 0, 0.45, 0)
-AutoFarmRock.Size = UDim2.new(0.4, 0, 0, 40)
-AutoFarmRock.Font = Enum.Font.Cartoon
-AutoFarmRock.Text = "Farm Rocha"
-AutoFarmRock.TextColor3 = Color3.fromRGB(255, 255, 255)
-AutoFarmRock.TextSize = 14
+local flying = false
+AutoFarmButton.MouseButton1Click:Connect(function()
+	flying = not flying
+	while flying and task.wait(0.5) do
+		local char = LocalPlayer.Character
+		if not char then continue end
 
--- AUTO PICKUP ITEM
-AutoPickupItem.Name = "AutoPickupItem"
-AutoPickupItem.Parent = MainGUI
-AutoPickupItem.BackgroundColor3 = Color3.fromRGB(0, 85, 255)
-AutoPickupItem.Position = UDim2.new(0.55, 0, 0.45, 0)
-AutoPickupItem.Size = UDim2.new(0.4, 0, 0, 40)
-AutoPickupItem.Font = Enum.Font.Cartoon
-AutoPickupItem.Text = "Pegar Item"
-AutoPickupItem.TextColor3 = Color3.fromRGB(255, 255, 255)
-AutoPickupItem.TextSize = 14
+		local rockName = RockName.Text
+		local ore = workspace:FindFirstChild("Ores") and workspace.Ores:FindFirstChild(rockName)
+		if ore and ore:FindFirstChild("Reference") then
+			local tool = LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+			if tool then tool.Parent = char end
 
--- AUTO SPAM TOOL
-AutoSpamTool.Name = "AutoSpamTool"
-AutoSpamTool.Parent = MainGUI
-AutoSpamTool.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-AutoSpamTool.Position = UDim2.new(0.05, 0, 0.65, 0)
-AutoSpamTool.Size = UDim2.new(0.9, 0, 0, 40)
-AutoSpamTool.Font = Enum.Font.Cartoon
-AutoSpamTool.Text = "🔁 Usar ferramenta"
-AutoSpamTool.TextColor3 = Color3.fromRGB(0, 0, 0)
-AutoSpamTool.TextSize = 14
+			-- Animação de voo
+			local goal = { CFrame = ore.Reference.CFrame + Vector3.new(0, 5, 0) }
+			TweenService:Create(char.HumanoidRootPart, TweenInfo.new(0.5), goal):Play()
+			task.wait(0.6)
 
--- LISTA DE MINÉRIOS (Texto decorativo)
-RockList.Name = "RockList"
-RockList.Parent = MainGUI
-RockList.BackgroundTransparency = 1
-RockList.Position = UDim2.new(0.05, 0, 0.85, 0)
-RockList.Size = UDim2.new(0.9, 0, 0, 40)
-RockList.Font = Enum.Font.Cartoon
-RockList.TextColor3 = Color3.fromRGB(255, 255, 255)
-RockList.TextSize = 12
-RockList.Text = "⛏️ Exemplos: Ferro, Rubi, Ouro, Prata, Carvão"
+			-- Atacar minério
+			if tool then
+				ReplicatedStorage.Events:WaitForChild("DestroyModel"):FireServer(tool, char.HumanoidRootPart.CFrame)
+			end
 
--- FUNÇÕES
-local toggleFarm = false
-AutoFarmRock.MouseButton1Click:Connect(function()
-	toggleFarm = not toggleFarm
-	while toggleFarm and wait(0.1) do
-		local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-		if tool and RockName.Text ~= "" then
-			local args = {
-				[1] = tool,
-				[2] = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-			}
-			game:GetService("ReplicatedStorage").Events.DestroyModel:FireServer(unpack(args))
-			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame =
-				game:GetService("Workspace").Ores[RockName.Text].Reference.CFrame
+			-- Coletar drop
+			for _, drop in pairs(workspace:GetDescendants()) do
+				if drop:IsA("Part") and drop.Name == rockName and (drop.Position - char.HumanoidRootPart.Position).Magnitude < 15 then
+					char.HumanoidRootPart.CFrame = drop.CFrame
+					task.wait(0.2)
+					pcall(function()
+						ReplicatedStorage.Events:FindFirstChild("Pick up"):FireServer(drop)
+					end)
+				end
+			end
 		end
 	end
 end)
 
-AutoPickupItem.MouseButton1Click:Connect(function()
-	for _, v in pairs(game.Workspace:GetDescendants()) do
-		if v.Name == ItemName.Text then
-			game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-			wait(0.2)
-			local args = {[1] = v}
-			game:GetService("ReplicatedStorage").Events:FindFirstChild("Pick up"):FireServer(unpack(args))
+-------------------- ⚙️ Seção: OPÇÕES --------------------
+-- Select Menu (Dropdown)
+local PlayerSelect = Instance.new("TextButton", MainGUI)
+PlayerSelect.Text = "👤 Teleportar para jogador"
+PlayerSelect.Size = UDim2.new(0, 230, 0, 30)
+PlayerSelect.Position = UDim2.new(0, 15, 0, 130)
+PlayerSelect.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+PlayerSelect.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerSelect.Font = Enum.Font.Gotham
+PlayerSelect.TextSize = 13
+Instance.new("UICorner", PlayerSelect).CornerRadius = UDim.new(0, 6)
+
+PlayerSelect.MouseButton1Click:Connect(function()
+	for _, p in pairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer then
+			local button = Instance.new("TextButton", MainGUI)
+			button.Text = "➡️ " .. p.Name
+			button.Size = UDim2.new(0, 230, 0, 25)
+			button.Position = UDim2.new(0, 15, 0, 165 + (#MainGUI:GetChildren() * 27))
+			button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			button.TextColor3 = Color3.fromRGB(255, 255, 255)
+			button.Font = Enum.Font.Gotham
+			button.TextSize = 12
+			Instance.new("UICorner", button).CornerRadius = UDim.new(0, 4)
+
+			button.MouseButton1Click:Connect(function()
+				local targetChar = p.Character
+				if targetChar then
+					LocalPlayer.Character.HumanoidRootPart.CFrame = targetChar.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
+				end
+			end)
 		end
 	end
 end)
 
-local toggleSpam = false
-AutoSpamTool.MouseButton1Click:Connect(function()
-	toggleSpam = not toggleSpam
-	while toggleSpam and wait(0.1) do
-		local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-		if tool then
-			local args = {
-				[1] = tool,
-				[2] = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-			}
-			game:GetService("ReplicatedStorage").Events.DestroyModel:FireServer(unpack(args))
+-- Speed Slider
+local Speed = 16
+local SpeedBtn = Instance.new("TextButton", MainGUI)
+SpeedBtn.Text = "⚡ Speed: 16"
+SpeedBtn.Size = UDim2.new(0, 230, 0, 30)
+SpeedBtn.Position = UDim2.new(0, 15, 0, 210)
+SpeedBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+SpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBtn.Font = Enum.Font.Gotham
+SpeedBtn.TextSize = 13
+Instance.new("UICorner", SpeedBtn).CornerRadius = UDim.new(0, 6)
+
+SpeedBtn.MouseButton1Click:Connect(function()
+	Speed = Speed + 16
+	if Speed > 100 then Speed = 16 end
+	SpeedBtn.Text = "⚡ Speed: " .. Speed
+	LocalPlayer.Character.Humanoid.WalkSpeed = Speed
+end)
+
+-- Jump Slider
+local Jump = 50
+local JumpBtn = Instance.new("TextButton", MainGUI)
+JumpBtn.Text = "🦘 Jump: 50"
+JumpBtn.Size = UDim2.new(0, 230, 0, 30)
+JumpBtn.Position = UDim2.new(0, 15, 0, 250)
+JumpBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+JumpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+JumpBtn.Font = Enum.Font.Gotham
+JumpBtn.TextSize = 13
+Instance.new("UICorner", JumpBtn).CornerRadius = UDim.new(0, 6)
+
+JumpBtn.MouseButton1Click:Connect(function()
+	Jump = Jump + 25
+	if Jump > 150 then Jump = 50 end
+	JumpBtn.Text = "🦘 Jump: " .. Jump
+	LocalPlayer.Character.Humanoid.JumpPower = Jump
+end)
+
+-- ESP Players
+local function enableESP()
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+			if not player.Character.Head:FindFirstChild("ESP") then
+				local billboard = Instance.new("BillboardGui", player.Character.Head)
+				billboard.Name = "ESP"
+				billboard.Size = UDim2.new(0, 100, 0, 40)
+				billboard.AlwaysOnTop = true
+				local label = Instance.new("TextLabel", billboard)
+				label.Size = UDim2.new(1, 0, 1, 0)
+				label.BackgroundTransparency = 1
+				label.Text = "👁‍🗨 " .. player.Name
+				label.TextColor3 = Color3.new(0, 0.7, 1)
+				label.TextScaled = true
+			end
 		end
 	end
+end
+
+local ESPBtn = Instance.new("TextButton", MainGUI)
+ESPBtn.Text = "👁‍🗨 Ativar ESP"
+ESPBtn.Size = UDim2.new(0, 230, 0, 30)
+ESPBtn.Position = UDim2.new(0, 15, 0, 290)
+ESPBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ESPBtn.TextColor3 = Color3.fromRGB(0, 170, 255)
+ESPBtn.Font = Enum.Font.GothamBlack
+ESPBtn.TextSize = 14
+Instance.new("UICorner", ESPBtn).CornerRadius = UDim.new(0, 6)
+
+ESPBtn.MouseButton1Click:Connect(function()
+	enableESP()
 end)
